@@ -22,7 +22,7 @@ License
 -------
 
 Standard BSD 3-Clause License as used by the LZ4 library.
-
+[laudrup/lz4_stream](https://github.com/laudrup/lz4_stream)
 [LZ4 compression library]: https://github.com/lz4/lz4
 [cmake]: http://cmake.org
 [Google Test Framework]: https://github.com/google/googletest
