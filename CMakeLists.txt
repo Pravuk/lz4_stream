@@ -2,6 +2,21 @@ cmake_minimum_required(VERSION 3.1)
 
 project(lz4_stream LANGUAGES CXX)
 
+
+
+set(CPM_DOWNLOAD_VERSION 0.27.2)
+set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+  message(STATUS "Downloading CPM.cmake")
+  file(DOWNLOAD https://github.com/TheLartians/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake ${CPM_DOWNLOAD_LOCATION})
+endif()
+include(${CPM_DOWNLOAD_LOCATION})
+
+CPMAddPackage(NAME lz4
+              GITHUB_REPOSITORY lz4/lz4
+              VERSION 1.9.4)
+
 include(ExternalProject)
 
 option(LZ4_STREAM_UseBundledLz4 "Use bundled static LZ4 library" OFF)
@@ -14,11 +29,6 @@ set(LZ4_STREAM_LIBRARY_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include/")
 
 # TODO: Probably shouldn't be set like this
 set(CMAKE_CXX_STANDARD 11)
-if(MSVC)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W3 /WX /EHsc")
-else()
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
-endif()
 
 # TODO: Probably shouldn't be set like this
 set(CMAKE_CXX_FLAGS_COVERAGE
@@ -37,17 +47,10 @@ mark_as_advanced(
 add_library(${LZ4_STREAM_LIBRARY_NAME} INTERFACE)
 target_include_directories(${LZ4_STREAM_LIBRARY_NAME} INTERFACE ${LZ4_STREAM_LIBRARY_INCLUDE_DIR})
 
-if(LZ4_STREAM_UseBundledLz4)
-  message(STATUS "Using bundled LZ4 library")
-  add_subdirectory("thirdparty/lz4")
-  target_link_libraries(${LZ4_STREAM_LIBRARY_NAME} INTERFACE lz4)
-  target_include_directories(${LZ4_STREAM_LIBRARY_NAME} INTERFACE lz4)
-else()
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(LZ4 REQUIRED liblz4)
-  target_include_directories(${LZ4_STREAM_LIBRARY_NAME} INTERFACE ${LZ4_INCLUDE_DIR})
-  target_link_libraries(${LZ4_STREAM_LIBRARY_NAME} INTERFACE ${LZ4_LIBRARIES})
-endif()
+message(STATUS "Using bundled LZ4 library")
+add_subdirectory("thirdparty/lz4")
+target_link_libraries(${LZ4_STREAM_LIBRARY_NAME} INTERFACE lz4)
+target_include_directories(${LZ4_STREAM_LIBRARY_NAME} INTERFACE lz4)
 
 if(LZ4_STREAM_BuildTests)
   enable_testing()
